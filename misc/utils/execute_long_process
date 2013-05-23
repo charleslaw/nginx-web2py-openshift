@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+
+from subprocess import Popen, PIPE
+import os
+import sys
+import time
+
+def truncate_line(line, length):
+	if len(line) > length:
+		return line[:length-3] + '...'
+	else:
+		return line
+
+if __name__ == '__main__':
+	command = sys.argv[1:]
+
+	p = Popen(command, stdout=PIPE, stderr=PIPE)
+
+	line = truncate_line(' '.join(command), 32)
+	sys.stdout.write('%s [-]' % line)
+
+	spinner = r'\|/-'
+	spinner_counter = 0
+
+	while p.poll() is None:
+		sys.stdout.flush()
+		time.sleep(0.1)
+		sys.stdout.write('\b\b\b[%s]' % spinner[spinner_counter])
+		spinner_counter = (spinner_counter + 1) % len(spinner)
+	sys.stdout.write('\b\b\b[OK]\n')
+
+	if p.poll() != 0:
+		stdoutdata,stderrdata = p.communicate()
+		stdout_name = '-'.join(command) + '-stdout.log'
+		stderr_name = '-'.join(command) + '-stderr.log'
+
+		log_dir = os.getenv('OPENSHIFT_DIY_LOG_DIR')
+
+		stdout_logfile = os.path.join(log_dir, stdout_name)
+		stderr_logfile = os.path.join(log_dir, stderr_name)
+
+		with open(stdout_logfile, 'w') as f:
+			f.write(stdoutdata)
+		with open(stderr_logfile, 'w') as f:
+			f.write(stderr_logfile)
+
+		print 'Error processing "%s", see the log files:' %  ' '.join(command)
+		print '\t%s' % stdout_logfile
+		print '\t%s' % stderr_logfile
+
