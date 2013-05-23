@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+VIRTUALENV_DIR="$OPENSHIFT_DATA_DIR/env"
+
+function activate_virtualenv() {
+	source "$VIRTUALENV_DIR/bin/activate"
+}
