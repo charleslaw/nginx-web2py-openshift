@@ -97,7 +97,7 @@ function check_virtualenv() {
 function install_uwsgi() {
 	info_message 'Installing/updating uWSGI...'
 	activate_virtualenv
-	pip install -U uWSGI
+	$LONG_PROCESS pip install -U uWSGI
 	if [ $? -ne 0 ]; then
 		warning_message 'Errors while installing uWSGI'
 	else
