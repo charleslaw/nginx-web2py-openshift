@@ -31,8 +31,8 @@ if __name__ == '__main__':
 
 	if p.poll() != 0:
 		stdoutdata,stderrdata = p.communicate()
-		stdout_name = '-'.join(command).replace('/','') + '-stdout.log'
-		stderr_name = '-'.join(command).replace('/','') + '-stderr.log'
+		stdout_name = '-'.join(command).replace('/','')[:32] + '-stdout.log'
+		stderr_name = '-'.join(command).replace('/','')[:32] + '-stderr.log'
 
 		log_dir = os.getenv('OPENSHIFT_DIY_LOG_DIR')
 
