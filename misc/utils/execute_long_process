@@ -14,38 +14,51 @@ def truncate_line(line, length):
 if __name__ == '__main__':
 	command = sys.argv[1:]
 
-	p = Popen(command, stdout=PIPE, stderr=PIPE)
+	# the tmp log dir is used to hold these process logs, there might be
+	# a few of them, so I'm keeping them in a separate tmp folder
+	log_dir = os.path.join(os.getenv('OPENSHIFT_DIY_LOG_DIR'), 'tmp')
+	try:
+		os.mkdir(log_dir)
+	except OSError:
+		pass
+	except:
+		print 'Something really wrong is going on, exiting...'
+		sys.exit(1)
+	
+	# open the stdout and stderr log files
+	stdout_name = '-'.join(command).replace('/','')[:32] + '-stdout.log'
+	stderr_name = '-'.join(command).replace('/','')[:32] + '-stderr.log'
 
-	line = truncate_line(' '.join(command), 32)
-	sys.stdout.write('%s [-]' % line)
+	stdout_file = os.path.join(log_dir, stdout_name)
+	stderr_file = os.path.join(log_dir, stderr_name)
 
-	spinner = r'\|/-'
-	spinner_counter = 0
+	with open(stdout_file, 'w') as out_f, open(stderr_file, 'w') as err_f:
+		p = Popen(command, stdout=out_f, stderr=err_f)
 
-	while p.poll() is None:
-		sys.stdout.flush()
-		time.sleep(0.1)
-		sys.stdout.write('\b\b\b[%s]' % spinner[spinner_counter])
-		spinner_counter = (spinner_counter + 1) % len(spinner)
-	sys.stdout.write('\b\b\b[OK]\n')
+		line = truncate_line(' '.join(command), 32)
+		sys.stdout.write('%s [-]' % line)
 
-	if p.poll() != 0:
-		stdoutdata,stderrdata = p.communicate()
-		stdout_name = '-'.join(command).replace('/','')[:32] + '-stdout.log'
-		stderr_name = '-'.join(command).replace('/','')[:32] + '-stderr.log'
+		spinner = r'\|/-'
+		spinner_counter = 0
 
-		log_dir = os.getenv('OPENSHIFT_DIY_LOG_DIR')
+		while p.poll() is None:
+			sys.stdout.flush()
+			time.sleep(0.1)
+			sys.stdout.write('\b\b\b[%s]' % spinner[spinner_counter])
+			spinner_counter = (spinner_counter + 1) % len(spinner)
+		sys.stdout.write('\b\b\b[OK]\n')
 
-		stdout_logfile = os.path.join(log_dir, stdout_name)
-		stderr_logfile = os.path.join(log_dir, stderr_name)
+		if p.poll() != 0:
+			stdoutdata,stderrdata = p.communicate()
 
-		with open(stdout_logfile, 'w') as f:
-			f.write(stdoutdata)
-		with open(stderr_logfile, 'w') as f:
-			f.write(stderr_logfile)
 
-		print 'Error processing "%s", see the log files:' %  ' '.join(command)
-		print '\t%s' % stdout_logfile
-		print '\t%s' % stderr_logfile
+			with open(stdout_logfile, 'w') as f:
+				f.write(stdoutdata)
+			with open(stderr_logfile, 'w') as f:
+				f.write(stderr_logfile)
+
+			print 'Error processing "%s", see the log files:' %  ' '.join(command)
+			print '\t%s' % stdout_logfile
+			print '\t%s' % stderr_logfile
 
 	sys.exit(p.poll())
