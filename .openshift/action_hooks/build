@@ -9,14 +9,20 @@ PYTHON_DIR="$OPENSHIFT_DATA_DIR/python-2.7"
 VIRTUALENV_DIR="$OPENSHIFT_DATA_DIR/env"
 
 LONG_PROCESS=$OPENSHIFT_REPO_DIR/misc/utils/execute_long_process
+CURL="curl -L --progress-bar"
+
+source $OPENSHIFT_REPO_DIR/misc/utils/color_output
 
 # the following functions are used to check if the packages we use in this
 # cartridge are already installed or not, and if they are not, installs them
 function check_nginx_installed() {
+	info_message 'Checking for nginx... '
 	if [ -e $NGINX_DIR ]; then
+		success_message 'nginx is installed!'
 		return
 	fi
 
+	info_message 'Downloading and installing nginx... '
 	local NGINX_DOWNLOAD_FILE="http://nginx.org/download/nginx-1.4.1.tar.gz"
 	local PCRE_DOWNLOAD_FILE="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.32.tar.gz"
 
@@ -24,41 +30,65 @@ function check_nginx_installed() {
 	local PCRE_OUT_DIR="$OPENSHIFT_TMP_DIR/pcre-8.32"
 
 	cd $OPENSHIFT_TMP_DIR
-	curl -L $NGINX_DOWNLOAD_FILE | tar xzf -
-	curl -L $PCRE_DOWNLOAD_FILE | tar xzf -
+	$CURL $NGINX_DOWNLOAD_FILE | tar xzf -
+	$CURL $PCRE_DOWNLOAD_FILE | tar xzf -
 
 	cd $NGINX_OUT_DIR
 	$LONG_PROCESS ./configure --prefix=$NGINX_DIR --with-http_ssl_module --with-pcre=$PCRE_OUT_DIR
 	$LONG_PROCESS make
 	$LONG_PROCESS make install
+
+	if [ $? -ne 0 ]; then
+		warning_message 'Errors while installing nginx'
+	else
+		success_message 'nginx was successfully installed!'
+	fi
 }
 
 function check_python_installed() {
+	info_message 'Checking for Python 2.7.5... '
 	if [ -e $PYTHON_DIR ]; then
+		success_message 'Python 2.7.5 is installed!'
 		return
 	fi
 
+	info_message 'Downloading and installing Python 2.7.5... '
 	local PYTHON_DOWNLOAD_FILE="http://python.org/ftp/python/2.7.5/Python-2.7.5.tar.bz2"
 	local PYTHON_OUT_DIR="$OPENSHIFT_TMP_DIR/Python-2.7.5"
 
 	cd $OPENSHIFT_TMP_DIR
-	curl -L $PYTHON_DOWNLOAD_FILE | tar xjf -
+	$CURL $PYTHON_DOWNLOAD_FILE | tar xjf -
 
 	cd $PYTHON_OUT_DIR
 	$LONG_PROCESS ./configure --prefix=$PYTHON_DIR
 	$LONG_PROCESS make
 	$LONG_PROCESS make install
+
+	if [ $? -ne 0 ]; then
+		warning_message 'Errors while installing Python 2.7.5'
+	else
+		success_message 'Python 2.7.5 was successfully installed!'
+	fi
 }
 
 # I'm not calling this *installed because the virtualenv program is already
 # installed in openshift. We'll just create the environment here, and tell it
 # to use the newly installed Python
 function check_virtualenv() {
+	info_message 'Checking for existing virtualenv...'
 	if [ -e $VIRTUALENV_DIR ]; then
+		success_message 'Virtualenv exists!'
 		return
 	fi
 
+	info_message 'Creating virtualenv...'
 	$LONG_PROCESS virtualenv --no-site-packages --python="$PYTHON_DIR/bin/python2.7" $VIRTUALENV_DIR
+
+	if [ $? -ne 0 ]; then
+		warning_message 'Errors while creating virtualenv'
+	else
+		success_message 'The virtualenv was created!'
+	fi
 }
 
 check_nginx_installed
