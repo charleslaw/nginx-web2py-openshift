@@ -1,0 +1,22 @@
+#!/usr/bin/bash
+
+function warning_message() {
+	red=$(tput setaf 1)
+	reset=$(tput sgr0)
+
+	echo -e "${red}$1${reset}"
+}
+
+function info_message() {
+	blue=$(tput setaf 4)
+	reset=$(tput sgr0)
+
+	echo -e "${blue}$1${reset}"
+}
+
+function success_message() {
+	green=$(tput setaf 2)
+	reset=$(tput sgr0)
+
+	echo -e "${green}$1${reset}"
+}
