@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+export TERM=xterm-256color
+
 function warning_message() {
 	red=$(tput setaf 1)
 	reset=$(tput sgr0)
