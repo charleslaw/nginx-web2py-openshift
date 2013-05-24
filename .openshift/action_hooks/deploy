@@ -29,7 +29,7 @@ function replace_vars() {
 	local TARGET_FILE=$1
 
 	for var in $VARS_TO_REPLACE; do
-		sed -i "s/\$$var/${!var}/g" $TARGET_FILE
+		sed -i "s:\$$var:${!var}:g" $TARGET_FILE
 	done
 }
 
