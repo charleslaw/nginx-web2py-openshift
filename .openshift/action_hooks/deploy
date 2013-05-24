@@ -43,7 +43,7 @@ function copy_configuration_files() {
 
 	info_message -n 'Creating uwsgi config... '
 	# uwsgi may not have the directory set yet
-	if [ -d $UWSGI_DIR ]; then
+	if [ \! -d $UWSGI_DIR ]; then
 		mkdir $UWSGI_DIR
 	fi
 	cp $UWSGI_CONF_TEMPLATE $UWSGI_CONF_FILE

@@ -139,6 +139,6 @@ function install_user_packages() {
 check_nginx_installed
 check_python_installed
 check_virtualenv
+check_uwsgi_installed
 
-install_uwsgi
 install_user_packages
