@@ -3,3 +3,21 @@
 # build hook has been run but before the application has been started back
 # up again.  This script gets executed directly, so it could be python, php,
 # ruby, etc.
+
+UWSGI_PORT=$(($OPENSHIFT_INTERNAL_PORT + 1))
+
+read -d '' VARS_TO_REPLACE <<"EOF"
+	OPENSHIFT_REPO_DIR
+	UWSGI_PORT
+	OPENSHIFT_DIY_LOG_DIR
+	OPENSHIFT_INTERNAL_IP
+	OPENSHIFT_INTERNAL_PORT
+EOF
+
+function replace_vars() {
+	local TARGET_FILE=$1
+
+	for var in $VARS_TO_REPLACE; do
+		sed -i "s/\$$var/${!var}/g" $TARGET_FILE
+	done
+}
