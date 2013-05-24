@@ -4,6 +4,17 @@
 # up again.  This script gets executed directly, so it could be python, php,
 # ruby, etc.
 
+TEMPLATES_DIR="$OPENSHIFT_REPO_DIR/templates"
+
+NGINX_DIR="$OPENSHIFT_DATA_DIR/nginx"
+NGINX_CONF_FILE="$NGINX_DIR/conf/nginx.conf"
+
+UWSGI_DIR="$OPENSHIFT_DATA_DIR/uwsgi"
+UWSGI_CONF_FILE="$UWSGI_DIR/uwsgi.ini"
+
+UWSGI_CONF_TEMPLATE="$TEMPLATES_DIR/uwsgi.ini"
+NGINX_CONF_TEMPLATE="$TEMPLATES_DIR/nginx.conf"
+
 UWSGI_PORT=$(($OPENSHIFT_INTERNAL_PORT + 1))
 
 read -d '' VARS_TO_REPLACE <<"EOF"
@@ -21,3 +32,21 @@ function replace_vars() {
 		sed -i "s/\$$var/${!var}/g" $TARGET_FILE
 	done
 }
+
+function copy_configuration_files() {
+	info_message -n 'Creating nginx config... '
+	cp $NGINX_CONF_TEMPLATE $NGINX_CONF_FILE
+	replace_vars $NGINX_CONF_FILE
+	info_message 'OK'
+
+	info_message -n 'Creating uwsgi config... '
+	# uwsgi may not have the directory set yet
+	if [ -d $UWSGI_DIR ]; then
+		mkdir $UWSGI_DIR
+	fi
+	cp $UWSGI_CONF_TEMPLATE $UWSGI_CONF_FILE
+	replace_vars $UWSGI_CONF_FILE
+	info_message 'OK'
+}
+
+copy_configuration_files
