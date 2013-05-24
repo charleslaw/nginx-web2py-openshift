@@ -3,11 +3,11 @@
 #kill `ps -ef | grep testrubyserver.rb | grep -v grep | awk '{ print $2 }'` > /dev/null 2>&1
 #exit 0
 
-source $OPENSHIFT_REPO_DIR/misc/utils/virtualenv
-
 $OPENSHIFT_DATA_DIR/nginx/sbin/nginx -s stop
 
 UWSGI_PIDFILE=$OPENSHIFT_DATA_DIR/uwsgi/uwsgi.pid
 if [ -f $UWSGI_PIDFILE ]; then
 	kill -QUIT $(cat $UWSGI_PIDFILE)
 fi
+
+exit 0
