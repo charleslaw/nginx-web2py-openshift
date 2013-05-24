@@ -8,6 +8,8 @@ NGINX_DIR="$OPENSHIFT_DATA_DIR/nginx"
 PYTHON_DIR="$OPENSHIFT_DATA_DIR/python-2.7"
 VIRTUALENV_DIR="$OPENSHIFT_DATA_DIR/env"
 
+APP_DIR="$OPENSHIFT_REPO_DIR/app"
+
 LONG_PROCESS=$OPENSHIFT_REPO_DIR/misc/utils/execute_long_process
 CURL="curl -L --progress-bar"
 
@@ -106,8 +108,31 @@ function install_uwsgi() {
 	deactivate
 }
 
+# install the user application requirements, if they exist
+function install_user_packages() {
+	info_message 'Checking for user requirements.txt...'
+	if [ \! -f "$APP_DIR/requirements.txt" ]; then
+		info_message 'No requirements.txt found, moving on...'
+		return
+	fi
+
+	info_message 'Installing user packages in requirements.txt...'
+	activate_virtualenv
+
+	$LONG_PROCESS pip install -r "$APP_DIR/requirements.txt"
+
+	if [ $? -ne 0 ]; then
+		warning_message 'Errors while installing uWSGI'
+	else
+		success_message 'uWSGI was successfully installed!'
+	fi
+
+	deactivate
+}
+
 check_nginx_installed
 check_python_installed
 check_virtualenv
 
 install_uwsgi
+install_user_packages
