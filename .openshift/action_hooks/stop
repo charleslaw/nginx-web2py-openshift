@@ -1,4 +1,9 @@
 #!/bin/bash
 # The logic to stop your application should be put in this script.
-kill `ps -ef | grep testrubyserver.rb | grep -v grep | awk '{ print $2 }'` > /dev/null 2>&1
-exit 0
+#kill `ps -ef | grep testrubyserver.rb | grep -v grep | awk '{ print $2 }'` > /dev/null 2>&1
+#exit 0
+
+source $OPENSHIFT_REPO_DIR/misc/utils/virtualenv
+
+$OPENSHIFT_DATA_DIR/nginx/sbin/nginx -s stop
+kill -QUIT $(cat $OPENSHIFT_DATA_DIR/uwsgi/uwsgi.pid)
