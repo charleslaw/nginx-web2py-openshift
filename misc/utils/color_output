@@ -2,23 +2,32 @@
 
 export TERM=xterm-256color
 
-function warning_message() {
-	red=$(tput setaf 1)
+function _base_message() {
+	ECHO="echo -e"
+	if [ $# -eq 3 ]; then
+		if [ "x$2" = "x-n" ]; then
+			ECHO="echo -ne"
+		fi
+		MSG=$3
+	elif [ $# -eq 2 ]; then
+		MSG=$2
+	fi
+
+	COLOR=$1
+	color=$(tput setaf $COLOR)
 	reset=$(tput sgr0)
 
-	echo -e "${red}$1${reset}"
+	$ECHO "${color}$MSG${reset}"
+}
+
+function warning_message() {
+	_base_message 1 "$@"
 }
 
 function info_message() {
-	blue=$(tput setaf 4)
-	reset=$(tput sgr0)
-
-	echo -e "${blue}$1${reset}"
+	_base_message 4 "$@"
 }
 
 function success_message() {
-	green=$(tput setaf 2)
-	reset=$(tput sgr0)
-
-	echo -e "${green}$1${reset}"
+	_base_message 2 "$@"
 }
