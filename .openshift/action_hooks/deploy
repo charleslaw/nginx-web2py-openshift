@@ -25,6 +25,8 @@ read -d '' VARS_TO_REPLACE <<"EOF"
 	OPENSHIFT_INTERNAL_PORT
 EOF
 
+source $OPENSHIFT_REPO_DIR/misc/utils/color_output
+
 function replace_vars() {
 	local TARGET_FILE=$1
 
