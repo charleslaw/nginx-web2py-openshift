@@ -94,17 +94,23 @@ function check_virtualenv() {
 	fi
 }
 
-# this is not a "check", it will try to install a new uwsgi version into
-# the virtualenv if it is available
-function install_uwsgi() {
-	info_message 'Installing/updating uWSGI...'
+function check_uwsgi_installed() {
+	info_message 'Checking for uWSGI...'
 	activate_virtualenv
-	$LONG_PROCESS pip install -U uWSGI
-	if [ $? -ne 0 ]; then
-		warning_message 'Errors while installing uWSGI'
+		
+	if [ -z "$(pip freeze uWSGI)" ]; then
+		info_message 'Installling uWSGI...'
+		$LONG_PROCESS pip install uWSGI
+
+		if [ $? -ne 0 ]; then
+			warning_message 'Errors while installing uWSGI'
+		else
+			success_message 'uWSGI was successfully installed!'
+		fi
 	else
-		success_message 'uWSGI was successfully installed!'
+		success_message 'uWSGI is installed!'
 	fi
+
 	deactivate
 }
 
