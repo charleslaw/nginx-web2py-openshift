@@ -105,7 +105,7 @@ function check_uwsgi_installed() {
 	info_message 'Checking for uWSGI...'
 	activate_virtualenv
 		
-	if [ -z "$(pip freeze uWSGI)" ]; then
+	if [ -z "$(pip freeze | grep uWSGI)" ]; then
 		info_message 'Installling uWSGI...'
 		$LONG_PROCESS pip install uWSGI
 
