@@ -6,7 +6,9 @@
 
 source $OPENSHIFT_REPO_DIR/misc/utils/virtualenv
 
-nohup $OPENSHIFT_DATA_DIR/nginx/sbin/nginx &
-
+# uwsgi has to be started first, or else nginx won't be able to connect to
+# the unix socket (since it would not exist)
 activate_virtualenv
 nohup uwsgi $OPENSHIFT_DATA_DIR/uwsgi/uwsgi.ini &
+
+nohup $OPENSHIFT_DATA_DIR/nginx/sbin/nginx &
