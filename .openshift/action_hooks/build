@@ -135,9 +135,9 @@ function install_user_packages() {
 	$LONG_PROCESS pip install -r "$APP_DIR/requirements.txt"
 
 	if [ $? -ne 0 ]; then
-		warning_message 'Errors while installing uWSGI'
+		warning_message 'Errors while installing user packages'
 	else
-		success_message 'uWSGI was successfully installed!'
+		success_message 'User packages from requirements.txt were successfully installed!'
 	fi
 
 	deactivate
