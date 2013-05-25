@@ -49,4 +49,13 @@ After the installation is done, you can access your application at
     $ curl myapp-<domain>.rhcloud.com
     Hello world
 
+Video
+*****
+
+There is a video of this process on `ASCII.IO <http://ascii.io/a/3286>`_. Note
+that, although it is a simple process, building the software on the host
+machines takes some time. The total running time of the above video is ~25min.
+Feel free to skip through the ``make ...`` parts until I don't upload a better
+video.
+
 .. _DIY OpenShift Cartridge: https://www.openshift.com/developers/do-it-yourself
