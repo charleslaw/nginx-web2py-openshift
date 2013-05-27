@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+
+from optparse import OptionParser
+import os
+import json
+
+if __name__ == '__main__':
+	repo_dir = os.getenv('OPENSHIFT_REPO_DIR', '')
+	app_dir = os.path.join(repo_dir, 'app')
+	user_config_file = os.path.join(app_dir, 'openshift.json')
+
+	parser = OptionParser()
+	parser.add_option('-r', '--requirements', action='store_true')
+	parser.add_option('-w', '--wsgi-file', action='store_true')
+	parser.add_option('-c', '--callable', action='store_true')
+	parser.add_option('-n', '--nginx', action='store_true')
+
+	options,args = parser.parse_args()
+	
+	if os.path.exists(user_config_file):
+		user_config = json.load(open(user_config_file))
+	else:
+		user_config = {}
+
+	if options.requirements:
+		default_requirements = os.path.join(app_dir, 'requirements.txt')
+		print user_config.get('requirements', default_requirements)
+	elif options.wsgi_file:
+		default_wsgi_file = os.path.join(app_dir, 'wsgi.py')
+		print user_config.get('wsgi-file', default_wsgi_file)
+	elif options.callable:
+		default_callable = 'application'
+		print user_config.get('callable', default_callable)
+	elif options.nginx:
+		# this is a special option, we have to output the "include" statement
+		# for the nginx config file only if this option exists in the user
+		# config file
+		nginx_config = os.path.join(app_dir, 'nginx.conf')
+		if os.path.exists(nginx_config):
+			print "include %s;" % nginx_config
+	else:
+		parser.print_usage()
+
