@@ -8,10 +8,9 @@ NGINX_DIR="$OPENSHIFT_DATA_DIR/nginx"
 PYTHON_DIR="$OPENSHIFT_DATA_DIR/python-2.7"
 VIRTUALENV_DIR="$OPENSHIFT_DATA_DIR/env"
 
-APP_DIR="$OPENSHIFT_REPO_DIR/app"
-
 LONG_PROCESS=$OPENSHIFT_REPO_DIR/misc/utils/execute_long_process
 CURL="curl -L --progress-bar"
+USER_CONFIG=$OPENSHIFT_REPO_DIR/misc/utils/get_user_config
 
 source $OPENSHIFT_REPO_DIR/misc/utils/color_output
 source $OPENSHIFT_REPO_DIR/misc/utils/virtualenv
@@ -123,21 +122,23 @@ function check_uwsgi_installed() {
 
 # install the user application requirements, if they exist
 function install_user_packages() {
-	info_message 'Checking for user requirements.txt...'
-	if [ \! -f "$APP_DIR/requirements.txt" ]; then
-		info_message 'No requirements.txt found, moving on...'
+	REQUIREMENTS_FILE=$($USER_CONFIG --requirements)
+
+	info_message "Checking for user ${REQUIREMENTS_FILE}..."
+	if [ \! -f $REQUIREMENTS_FILE ]; then
+		info_message "No $REQUIREMENTS_FILE found, moving on..."
 		return
 	fi
 
-	info_message 'Installing user packages in requirements.txt...'
+	info_message "Installing user packages in ${REQUIREMENTS_FILE}..."
 	activate_virtualenv
 
-	$LONG_PROCESS pip install -r "$APP_DIR/requirements.txt"
+	$LONG_PROCESS pip install -r $REQUIREMENTS_FILE
 
 	if [ $? -ne 0 ]; then
 		warning_message 'Errors while installing user packages'
 	else
-		success_message 'User packages from requirements.txt were successfully installed!'
+		success_message "User packages from $REQUIREMENTS_FILE were successfully installed"'!'
 	fi
 
 	deactivate

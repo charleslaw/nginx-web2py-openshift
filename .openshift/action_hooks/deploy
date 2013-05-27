@@ -15,18 +15,19 @@ UWSGI_CONF_FILE="$UWSGI_DIR/uwsgi.ini"
 UWSGI_CONF_TEMPLATE="$TEMPLATES_DIR/uwsgi.ini"
 NGINX_CONF_TEMPLATE="$TEMPLATES_DIR/nginx.conf"
 
-UWSGI_PORT=$(($OPENSHIFT_INTERNAL_PORT + 1))
-
 read -d '' VARS_TO_REPLACE <<"EOF"
 	OPENSHIFT_REPO_DIR
-	UWSGI_PORT
 	OPENSHIFT_DIY_LOG_DIR
 	OPENSHIFT_INTERNAL_IP
 	OPENSHIFT_INTERNAL_PORT
 	OPENSHIFT_DATA_DIR
+	USER_WSGI_FILE
+	USER_WSGI_CALLABLE
+	USER_NGINX_CONFIG
 EOF
 
 source $OPENSHIFT_REPO_DIR/misc/utils/color_output
+USER_CONFIG="$OPENSHIFT_REPO_DIR/misc/utils/get_user_config"
 
 function replace_vars() {
 	local TARGET_FILE=$1
@@ -51,5 +52,10 @@ function copy_configuration_files() {
 	replace_vars $UWSGI_CONF_FILE
 	info_message 'OK'
 }
+
+# set special user environment variables
+USER_WSGI_FILE=$($USER_CONFIG --wsgi-file)
+USER_WSGI_CALLABLE=$($USER_CONFIG --callable)
+USER_NGINX_CONFIG=$($USER_CONFIG --nginx)
 
 copy_configuration_files
