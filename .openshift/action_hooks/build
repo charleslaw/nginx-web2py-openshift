@@ -4,8 +4,8 @@
 # before the deploy step.  This script gets executed directly, so it
 # could be python, php, ruby, etc.
 
+export HOME=$OPENSHIFT_HOMEDIR
 NGINX_DIR="$OPENSHIFT_DATA_DIR/nginx"
-PYTHON_DIR="$OPENSHIFT_DATA_DIR/python-2.7"
 VIRTUALENV_DIR="$OPENSHIFT_DATA_DIR/env"
 
 LONG_PROCESS=$OPENSHIFT_REPO_DIR/misc/utils/execute_long_process
@@ -54,32 +54,6 @@ function check_nginx_installed() {
 	fi
 }
 
-function check_python_installed() {
-	info_message 'Checking for Python 2.7.5... '
-	if [ -e $PYTHON_DIR ]; then
-		success_message 'Python 2.7.5 is installed!'
-		return
-	fi
-
-	info_message 'Downloading and installing Python 2.7.5... '
-	local PYTHON_DOWNLOAD_FILE="http://python.org/ftp/python/2.7.5/Python-2.7.5.tar.bz2"
-	local PYTHON_OUT_DIR="$OPENSHIFT_TMP_DIR/Python-2.7.5"
-
-	cd $OPENSHIFT_TMP_DIR
-	$CURL $PYTHON_DOWNLOAD_FILE | tar xjf -
-
-	cd $PYTHON_OUT_DIR
-	$LONG_PROCESS ./configure --prefix=$PYTHON_DIR
-	$LONG_PROCESS make -j$NUMBER_OF_PROCESSORS
-	$LONG_PROCESS make install -j$NUMBER_OF_PROCESSORS
-
-	if [ $? -ne 0 ]; then
-		warning_message 'Errors while installing Python 2.7.5'
-	else
-		success_message 'Python 2.7.5 was successfully installed!'
-	fi
-}
-
 # I'm not calling this *installed because the virtualenv program is already
 # installed in openshift. We'll just create the environment here, and tell it
 # to use the newly installed Python
@@ -91,7 +65,7 @@ function check_virtualenv() {
 	fi
 
 	info_message 'Creating virtualenv...'
-	$LONG_PROCESS virtualenv --no-site-packages --python="$PYTHON_DIR/bin/python2.7" $VIRTUALENV_DIR
+	$LONG_PROCESS virtualenv --system-site-packag $VIRTUALENV_DIR
 
 	if [ $? -ne 0 ]; then
 		warning_message 'Errors while creating virtualenv'
@@ -145,8 +119,8 @@ function install_user_packages() {
 }
 
 check_nginx_installed
-check_python_installed
 check_virtualenv
 check_uwsgi_installed
 
 install_user_packages
+

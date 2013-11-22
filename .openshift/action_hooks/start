@@ -11,4 +11,5 @@ source $OPENSHIFT_REPO_DIR/misc/utils/virtualenv
 activate_virtualenv
 nohup uwsgi $OPENSHIFT_DATA_DIR/uwsgi/uwsgi.ini &
 
-nohup $OPENSHIFT_DATA_DIR/nginx/sbin/nginx &
+nohup $OPENSHIFT_DATA_DIR/nginx/sbin/nginx
+
